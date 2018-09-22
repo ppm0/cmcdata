@@ -38,7 +38,7 @@ def coinpaprika_dump():
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.40 Safari/537.36'})
         data = requests.get('https://api.coinpaprika.com/v1/ticker', headers=headers, timeout=60).json()
         for v in data:
-            l.append((v['symbol'], Decimal(v['price_btc']) if v['price_btc'] else None,
+            l.append((v['id'], v['symbol'], Decimal(v['price_btc']) if v['price_btc'] else None,
                       Decimal(v['price_usd']) if v['price_usd'] else None,
                       Decimal(v['volume_24h_usd']) if v['volume_24h_usd'] else None))
         return l
@@ -53,19 +53,22 @@ def one():
         session = Session()
         data = coinpaprika_dump()
         count = 0
-        for (token, price_btc, price_usd, volume) in data:
+        for (token_id, token, price_btc, price_usd, volume) in data:
             last = session.query(GlobalTokenHistory).filter(
-                GlobalTokenHistory.token == token).order_by(GlobalTokenHistory.ts.desc()).first()
-            if last and (last.price_btc != price_btc or last.price_usd != price_usd):
+                GlobalTokenHistory.token_id == token_id).order_by(GlobalTokenHistory.ts.desc()).first()
+
+            if (last is None) or (
+                    (last.price_btc or 0) != (price_btc or 0) or (last.price_usd or 0) != (price_usd or 0)):
                 count += 1
-                session.add(GlobalTokenHistory(ts=ts, token=token, price_btc=price_btc, price_usd=price_usd,
-                                               volume_24h_usd=volume))
+                session.add(
+                    GlobalTokenHistory(ts=ts, token_id=token_id, token=token, price_btc=price_btc, price_usd=price_usd,
+                                       volume_24h_usd=volume))
         session.commit()
         session.close()
-        print('{} all:{} new:{}'.format(datetime.datetime.now(), len(data), len(count)))
+        print('{} all:{} new:{}'.format(datetime.datetime.now(), len(data), count))
         return True
     except:
-        return False
+        raise
 
 
 def loop():

@@ -15,4 +15,7 @@ if __name__ == '__main__':
     session = Session()
     session.execute('create index if not exists ix_gth_ts_token on gth(ts, token)')
     session.execute('create index if not exists ix_gth_token_ts on gth(token, ts)')
+    session.execute('alter table gth add column if not exists token_id varchar(50)')
+    session.execute('create index if not exists ix_gth_ts_token_id on gth(ts, token_id)')
+    session.execute('create index if not exists ix_gth_token_id_ts on gth(token_id, ts)')
     session.commit()
