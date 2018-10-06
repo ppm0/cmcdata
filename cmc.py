@@ -1,4 +1,5 @@
 import datetime
+import sys
 import time
 from decimal import Decimal
 
@@ -67,8 +68,8 @@ def one():
         session.close()
         print('{} all:{} new:{}'.format(datetime.datetime.now(), len(data), count))
         return True
-    except:
-        raise
+    except Exception as err:
+        sys.stderr.write('ERROR: %sn' % str(err))
 
 
 def loop():
