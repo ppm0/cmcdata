@@ -1,3 +1,0 @@
-{
-  "db": "postgresql+psycopg2://arb:arb@localhost:5432/arb"
-}
