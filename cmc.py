@@ -6,7 +6,7 @@ from decimal import Decimal
 import requests
 
 from cmc_db import Session
-from cmc_model import GlobalTokenHistory
+from cmc_model import GlobalTokenHistory, TokenMap
 
 probe_frequency = 30
 
@@ -65,6 +65,9 @@ def one():
             last = session.query(GlobalTokenHistory).filter(
                 GlobalTokenHistory.token_id == token_id).order_by(GlobalTokenHistory.ts.desc()).first()
             if nn(token, '') != '' and nn(token_id, '') != '':
+                if session.query(TokenMap).filter(TokenMap.token_id == token_id).one_or_none() is None:
+                    session.add(TokenMap(token_id=token_id, token=token))
+
                 if (last is None) or (
                         nn(last.price_btc, 0) != nn(price_btc, 0)
                         or nn(last.price_usd, 0) != nn(price_usd, 0)
