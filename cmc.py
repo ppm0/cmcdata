@@ -47,6 +47,13 @@ def coinpaprika_dump():
         return l
 
 
+def nn(*args):
+    for e in args:
+        if e is not None:
+            return e
+    return None
+
+
 def one():
     try:
         ts = datetime.datetime.now()
@@ -57,13 +64,16 @@ def one():
         for (token_id, token, price_btc, price_usd, volume) in data:
             last = session.query(GlobalTokenHistory).filter(
                 GlobalTokenHistory.token_id == token_id).order_by(GlobalTokenHistory.ts.desc()).first()
-
-            if (last is None) or (
-                    (last.price_btc or 0) != (price_btc or 0) or (last.price_usd or 0) != (price_usd or 0)):
-                count += 1
-                session.add(
-                    GlobalTokenHistory(ts=ts, token_id=token_id, token=token, price_btc=price_btc, price_usd=price_usd,
-                                       volume_24h_usd=volume))
+            if nn(token, '') != '' and nn(token_id, '') != '':
+                if (last is None) or (
+                        nn(last.price_btc, 0) != nn(price_btc, 0)
+                        or nn(last.price_usd, 0) != nn(price_usd, 0)
+                        or nn(last.volume_24h_usd, 0) != nn(volume, 0)):
+                    count += 1
+                    session.add(
+                        GlobalTokenHistory(ts=ts, token_id=token_id, token=token, price_btc=price_btc,
+                                           price_usd=price_usd,
+                                           volume_24h_usd=volume))
         session.commit()
         session.close()
         print('{} all:{} new:{}'.format(datetime.datetime.now(), len(data), count))
