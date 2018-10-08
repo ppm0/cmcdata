@@ -13,3 +13,9 @@ class GlobalTokenHistory(Base):
     price_btc = Column(Numeric(30, 8))
     price_usd = Column(Numeric(30, 8))
     volume_24h_usd = Column(Numeric(30, 8))
+
+
+class TokenMap(Base):
+    __tablename__ = 'tm'
+    token_id = Column(String(50), primary_key=True)
+    token = Column(String(10))
