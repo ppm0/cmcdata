@@ -6,7 +6,7 @@ from decimal import Decimal
 import requests
 
 from cmc_db import Session
-from cmc_model import GlobalTokenHistory, TokenMap
+from cmc_model import GlobalTokenHistory, Token
 
 probe_frequency = 30
 
@@ -61,20 +61,28 @@ def one():
         session = Session()
         data = coinpaprika_dump()
         count = 0
-        for (token_id, token, price_btc, price_usd, volume) in data:
-            last = session.query(GlobalTokenHistory).filter(
-                GlobalTokenHistory.token_id == token_id).order_by(GlobalTokenHistory.ts.desc()).first()
-            if nn(token, '') != '' and nn(token_id, '') != '':
-                if session.query(TokenMap).filter(TokenMap.token_id == token_id).one_or_none() is None:
-                    session.add(TokenMap(token_id=token_id, token=token))
+        token_dict = {token_row.token:token_row.token_id for token_row in session.query(Token).all()}
 
+        for (token_id_str, old_code, price_btc, price_usd, volume) in data:
+            if token_id_str in token_dict.keys():
+                tid = token_dict[token_id_str]
+            else:
+                nt = Token(token=token_id_str, code=old_code)
+                session.add(nt)
+                session.commit()
+                tid = nt.token_id
+                token_dict[token_id_str] = tid
+
+            if tid:
+                last = session.query(GlobalTokenHistory).filter(
+                    GlobalTokenHistory.tid == tid).order_by(GlobalTokenHistory.ts.desc()).first()
                 if (last is None) or (
                         nn(last.price_btc, 0) != nn(price_btc, 0)
                         or nn(last.price_usd, 0) != nn(price_usd, 0)
                         or nn(last.volume_24h_usd, 0) != nn(volume, 0)):
                     count += 1
                     session.add(
-                        GlobalTokenHistory(ts=ts, token_id=token_id, token=token, price_btc=price_btc,
+                        GlobalTokenHistory(ts=ts, tid=tid, price_btc=price_btc,
                                            price_usd=price_usd,
                                            volume_24h_usd=volume))
         session.commit()

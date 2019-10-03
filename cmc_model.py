@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Numeric, BigInteger, DateTime
+from sqlalchemy import Column, String, Numeric, BigInteger, DateTime, Integer, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
@@ -6,16 +6,16 @@ Base = declarative_base()
 
 class GlobalTokenHistory(Base):
     __tablename__ = 'gth'
-    gth_id = Column(BigInteger, primary_key=True)
+    gth_id = Column(BigInteger, primary_key=True, autoincrement=True)
     ts = Column(DateTime())
-    token = Column(String(10))
-    token_id = Column(String(50))
+    tid = Column(Integer, ForeignKey('token.token_id'))
     price_btc = Column(Numeric(30, 8))
     price_usd = Column(Numeric(30, 8))
     volume_24h_usd = Column(Numeric(30, 8))
 
 
-class TokenMap(Base):
-    __tablename__ = 'tm'
-    token_id = Column(String(50), primary_key=True)
-    token = Column(String(10))
+class Token(Base):
+    __tablename__ = 'token'
+    token_id = Column(Integer, primary_key=True, autoincrement=True)
+    token = Column(String(50), unique=True)
+    code = Column(String(10))
