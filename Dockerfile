@@ -1,5 +1,6 @@
 FROM python:3
-ADD *.py /
-ADD requirements.txt /
+WORKDIR /app
+ADD *.py /app/
+ADD requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 CMD ["python", "./cmc.py"]
