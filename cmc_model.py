@@ -7,8 +7,8 @@ Base = declarative_base()
 class GlobalTokenHistory(Base):
     __tablename__ = 'gth'
     gth_id = Column(BigInteger, primary_key=True, autoincrement=True)
-    ts = Column(DateTime())
-    tid = Column(Integer, ForeignKey('token.token_id'))
+    ts = Column(DateTime(), nullable = False)
+    tid = Column(Integer, ForeignKey('token.token_id'), nullable = False)
     price_btc = Column(Numeric(30, 8))
     price_usd = Column(Numeric(30, 8))
     volume_24h_usd = Column(Numeric(30, 8))
@@ -17,5 +17,5 @@ class GlobalTokenHistory(Base):
 class Token(Base):
     __tablename__ = 'token'
     token_id = Column(Integer, primary_key=True, autoincrement=True)
-    token = Column(String(50), unique=True)
+    token = Column(String(50), unique=True, nullable=False)
     code = Column(String(10))

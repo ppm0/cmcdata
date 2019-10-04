@@ -2,6 +2,7 @@ import datetime
 import sys
 import time
 from decimal import Decimal
+from typing import List, Tuple, Optional
 
 import requests
 
@@ -31,7 +32,7 @@ def coinmarketcap_dump():
         return l
 
 
-def coinpaprika_dump():
+def coinpaprika_dump() -> List[Tuple[str, str, Optional[Decimal], Optional[Decimal], Optional[Decimal]]]:
     l = []
     try:
         headers = requests.utils.default_headers()
@@ -61,17 +62,16 @@ def one():
         session = Session()
         data = coinpaprika_dump()
         count = 0
-        token_dict = {token_row.token:token_row.token_id for token_row in session.query(Token).all()}
-
+        token = {token_row.token:token_row.token_id for token_row in session.query(Token).all()}
         for (token_id_str, old_code, price_btc, price_usd, volume) in data:
-            if token_id_str in token_dict.keys():
-                tid = token_dict[token_id_str]
+            if token_id_str in token.keys():
+                tid = token[token_id_str]
             else:
                 nt = Token(token=token_id_str, code=old_code)
                 session.add(nt)
                 session.commit()
                 tid = nt.token_id
-                token_dict[token_id_str] = tid
+                token[token_id_str] = tid
 
             if tid:
                 last = session.query(GlobalTokenHistory).filter(
