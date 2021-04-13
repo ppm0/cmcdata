@@ -37,7 +37,7 @@ def coinpaprika_dump() -> List[Tuple[str, str, Optional[Decimal], Optional[Decim
     try:
         headers = requests.utils.default_headers()
         headers.update({
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.40 Safari/537.36'})
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36'})
         data = requests.get('https://api.coinpaprika.com/v1/ticker', headers=headers, timeout=60).json()
         for v in data:
             l.append((v['id'], v['symbol'], Decimal(v['price_btc']) if v['price_btc'] else None,
